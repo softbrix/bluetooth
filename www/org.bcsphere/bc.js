@@ -1221,7 +1221,9 @@
 			
 			discoverServicesError : function(){
 				this.isDiscovering = false;
-				this.error();
+        if (this.error) {
+          this.error();
+        }
 			},
 			
 			processDeviceAllData : function(){
