@@ -1221,7 +1221,8 @@
 			
 			discoverServicesError : function(){
 				this.isDiscovering = false;
-        if (this.error) {
+        if ((this.type !== 'Classical') && this.error)
+        {
           this.error();
         }
 			},
