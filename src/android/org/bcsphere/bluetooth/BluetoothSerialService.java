@@ -441,12 +441,16 @@ public class BluetoothSerialService {
 					setName("ConnectThread" + mSocketType);
 
 					// Always cancel discovery because it will slow down a connection
+					Log.i(TAG, "Cancelling discovery.");
 					mAdapter.cancelDiscovery();
+					Log.i(TAG, "Discovery cancelled.");
 
 					// Make a connection to the BluetoothSocket
 					try {
 						// This is a blocking call and will only return on a successful connection or an exception
+						Log.i(TAG, "Invoking BluetoothSocket.connect()");
 						mmSocket.connect();
+						Log.i(TAG, "BluetoothSocket.connect() succeeded.");
 					} catch (IOException e) {
 						Class<?> clazz = mmSocket.getRemoteDevice().getClass();
 						Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
