@@ -460,15 +460,23 @@ public class BluetoothSerialService {
 							mmSocket.connect();
 						} catch (NoSuchMethodException e1) {
 							// TODO Auto-generated catch block
+							Log.e(TAG, "HALLO WELT");
+							Log.e(TAG, e1.toString());
 							e1.printStackTrace();
 						} catch (IllegalAccessException e1) {
 							// TODO Auto-generated catch block
+							Log.e(TAG, "HALLO WELT");
+							Log.e(TAG, e1.toString());
 							e1.printStackTrace();
 						} catch (IllegalArgumentException e1) {
 							// TODO Auto-generated catch block
+							Log.e(TAG, "HALLO WELT");
+							Log.e(TAG, e1.toString());
 							e1.printStackTrace();
 						} catch (InvocationTargetException e1) {
 							// TODO Auto-generated catch block
+							Log.e(TAG, "HALLO WELT");
+							Log.e(TAG, e1.toString());
 							e1.printStackTrace();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
