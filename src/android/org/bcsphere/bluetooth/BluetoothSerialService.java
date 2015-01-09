@@ -84,13 +84,13 @@ public class BluetoothSerialService {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case MESSAGE_READ:
-                    	
+                      
                        if (dataAvailableCallback != null) {
                            sendDataToSubscriber((byte[])msg.obj);
                        }else{
-                    	   byte[] data = (byte[])msg.obj;
-                    	   buffer.put(data);
-                    	   bufferSize = bufferSize + data.length;
+                         byte[] data = (byte[])msg.obj;
+                         buffer.put(data);
+                         bufferSize = bufferSize + data.length;
                        }
                        break;
                     case MESSAGE_STATE_CHANGE:
@@ -374,9 +374,9 @@ public class BluetoothSerialService {
                         switch (mState) {
                             case STATE_LISTEN:
                             case STATE_CONNECTING:
-                            	service.deviceAddress = socket.getRemoteDevice().getAddress();
-                            	bcbluetooth.classicalServices.put(service.deviceAddress,service);
-                            	bcbluetooth.acceptServices.remove(name+uuidstr);
+                              service.deviceAddress = socket.getRemoteDevice().getAddress();
+                              bcbluetooth.classicalServices.put(service.deviceAddress,service);
+                              bcbluetooth.acceptServices.remove(name+uuidstr);
                                 // Situation normal. Start the connected thread.
                                 connected(socket, socket.getRemoteDevice(),mSocketType);
                                 break;
@@ -437,67 +437,67 @@ public class BluetoothSerialService {
         }
 
         public void run() {
-            Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
-            setName("ConnectThread" + mSocketType);
+					Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
+					setName("ConnectThread" + mSocketType);
 
-            // Always cancel discovery because it will slow down a connection
-            mAdapter.cancelDiscovery();
+					// Always cancel discovery because it will slow down a connection
+					mAdapter.cancelDiscovery();
 
-            // Make a connection to the BluetoothSocket
-            try {
-                // This is a blocking call and will only return on a successful connection or an exception
-                mmSocket.connect();
-            } catch (IOException e) {
-                     Class<?> clazz = mmSocket.getRemoteDevice().getClass();
-                     Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
-                     Method m;
-                     try {
-						m = clazz.getMethod("createRfcommSocket", paramTypes);
-	                    Object[] params = new Object[] {Integer.valueOf(1)};
-	                    mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
-	                    Thread.sleep(500);
-	                    mmSocket.connect();
-	              
-                     }
-                     catch (NoSuchMethodException e1) {
- 						// TODO Auto-generated catch block
- 						e1.printStackTrace();
- 					} catch (IllegalAccessException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IllegalArgumentException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (InvocationTargetException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-		                    try {
+					// Make a connection to the BluetoothSocket
+					try {
+						// This is a blocking call and will only return on a successful connection or an exception
+						mmSocket.connect();
+					} catch (IOException e) {
+						Class<?> clazz = mmSocket.getRemoteDevice().getClass();
+						Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
+						Method m;
+						 
+						try {
+							m = clazz.getMethod("createRfcommSocket", paramTypes);
+							Object[] params = new Object[] {Integer.valueOf(1)};
+							mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
+							Thread.sleep(500);
+							mmSocket.connect();
+						} catch (NoSuchMethodException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IllegalAccessException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IllegalArgumentException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (InvocationTargetException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							try {
 								mmSocket.close();
 							} catch (IOException e2) {
 								// TODO Auto-generated catch block
-			                    Log.e(TAG, "unable to close() " + mSocketType + " socket during connection failure", e1);
+								Log.e(TAG, "unable to close() " + mSocketType + " socket during connection failure", e1);
 								e2.printStackTrace();
 							}
-		                    Log.e(TAG, e1.toString());
-		                    e1.printStackTrace();
-		                    connectionFailed();
-				    } catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+							
+							Log.e(TAG, e1.toString());
+							e1.printStackTrace();
+							connectionFailed();
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+							
+						return;
 					}
-                
-                return;
-            }
 
-            // Reset the ConnectThread because we're done
-            synchronized (BluetoothSerialService.this) {
-                mConnectThread = null;
-            }
+					// Reset the ConnectThread because we're done
+					synchronized (BluetoothSerialService.this) {
+							mConnectThread = null;
+					}
 
-            // Start the connected thread
-            connected(mmSocket, mmDevice, mSocketType);
+					// Start the connected thread
+					connected(mmSocket, mmDevice, mSocketType);
         }
 
         public void cancel() {
@@ -544,11 +544,11 @@ public class BluetoothSerialService {
             while (true) {
                 try {
                     // Read from the InputStream
-                	byteNum = mmInStream.read(buffer);
-                	byte[] data = new byte[byteNum];
-                	for(int i = 0;i < byteNum;i++){
-                		data[i] = buffer[i];
-                	}
+                  byteNum = mmInStream.read(buffer);
+                  byte[] data = new byte[byteNum];
+                  for(int i = 0;i < byteNum;i++){
+                    data[i] = buffer[i];
+                  }
                     
                     // Send the new data String to the UI Activity
                     mHandler.obtainMessage(MESSAGE_READ, data).sendToTarget();
@@ -597,8 +597,8 @@ public class BluetoothSerialService {
     }
     private void notifyConnectionLost() {
         if (disconnectCallback != null) {
-        	JSONObject obj = new JSONObject();
-			Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
+          JSONObject obj = new JSONObject();
+      Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
             PluginResult result = new PluginResult(PluginResult.Status.OK,obj);
             result.setKeepCallback(true);
             disconnectCallback.sendPluginResult(result);
@@ -606,18 +606,18 @@ public class BluetoothSerialService {
     }
     private void notifyConnectionFailed() {
         if (connectCallback != null) {
-        	JSONObject obj = new JSONObject();
-			Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
-			connectCallback.error(obj);
-        	connectCallback = null;
+          JSONObject obj = new JSONObject();
+      Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
+      connectCallback.error(obj);
+          connectCallback = null;
         }
     }
     private void sendDataToSubscriber(byte[] data) {
         if (data != null) {
-     	   JSONObject obj = new JSONObject();
-     	   //Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
-     	   Tools.addProperty(obj, Tools.VALUE, Tools.encodeBase64(data));
-     	   Tools.addProperty(obj, Tools.DATE, Tools.getDateString());
+         JSONObject obj = new JSONObject();
+         //Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
+         Tools.addProperty(obj, Tools.VALUE, Tools.encodeBase64(data));
+         Tools.addProperty(obj, Tools.DATE, Tools.getDateString());
             PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
             result.setKeepCallback(true);
             dataAvailableCallback.sendPluginResult(result);
