@@ -366,8 +366,10 @@ public class BCBluetooth extends CordovaPlugin {
 				}
 			}
 		} catch (Exception e) {
+      Log.i(TAG, e);
 			Tools.sendErrorMsg(callbackContext);
 		} catch(Error e){
+      Log.i(TAG, e);
 			Tools.sendErrorMsg(callbackContext);
 		}
 		return true;
