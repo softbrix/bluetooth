@@ -562,7 +562,7 @@ public class BluetoothSerialService {
           Log.e(TAG, "Read failed. Disconnecting.", e);
           
           try {
-            mmSocket.close()
+            mmSocket.close();
           } catch (IOException closeExc) {
             Log.e(TAG, "Unable to close socket after read error. - Probably already closed.", e);
           }
