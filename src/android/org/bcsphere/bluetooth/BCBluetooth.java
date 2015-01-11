@@ -366,10 +366,10 @@ public class BCBluetooth extends CordovaPlugin {
 				}
 			}
 		} catch (Exception e) {
-      Log.i(TAG, e);
+      Log.i(TAG, "Action failed with Exception: " + action, e);
 			Tools.sendErrorMsg(callbackContext);
 		} catch(Error e){
-      Log.i(TAG, e);
+      Log.i(TAG, "Action failed with Error: " + action, e);
 			Tools.sendErrorMsg(callbackContext);
 		}
 		return true;
