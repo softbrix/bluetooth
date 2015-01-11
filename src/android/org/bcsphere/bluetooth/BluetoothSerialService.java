@@ -467,9 +467,9 @@ public class BluetoothSerialService {
         mmSocket.connect();
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
       } catch (IOException e) {
+        Method m;
         Class<?> clazz = mmSocket.getRemoteDevice().getClass();
         Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
-        Method m;
          
         try {
           m = clazz.getMethod("createRfcommSocket", paramTypes);
@@ -477,12 +477,10 @@ public class BluetoothSerialService {
           mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
           Thread.sleep(500);
           mmSocket.connect();
-        } catch (IOException e1) {
-          // TODO Auto-generated catch block
+        } catch (IOException|NoSuchMethodException|IllegalAccessException e1) {
           try {
             mmSocket.close();
           } catch (IOException e2) {
-            // TODO Auto-generated catch block
             Log.e(TAG, "unable to close() " + mSocketType + " socket during connection failure", e1);
             e2.printStackTrace();
           }
@@ -491,7 +489,6 @@ public class BluetoothSerialService {
           e1.printStackTrace();
           connectionFailed();
         } catch (InterruptedException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
           
