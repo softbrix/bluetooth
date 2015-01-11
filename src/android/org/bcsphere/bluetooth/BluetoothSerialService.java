@@ -451,7 +451,7 @@ public class BluetoothSerialService {
       mmSocket = tmp;
     }
     
-    private handleConnectionException(Exception connectExc) {
+    private void handleConnectionException(Exception connectExc) {
       try {
         if (null != mmSocket) {
           mmSocket.close();
