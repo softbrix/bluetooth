@@ -56,6 +56,7 @@ public class BluetoothSerialService {
   public static final int MESSAGE_DEVICE_NAME = 4;
   public static final int CONNECT_FAILED = 5;
   public static final int CONNECT_LOST = 6;
+  public static final int CONNECT_TIMED_OUT = 7;
   
   public static final String TOAST = "toast";
   
@@ -121,6 +122,10 @@ public class BluetoothSerialService {
           
         case CONNECT_LOST:
           notifyConnectionLost();
+          break;
+          
+        case CONNECT_TIMED_OUT:
+          Log.i("BluetoothSerial", "Connection Attempt timed out.");
           break;
         }
       }
@@ -468,6 +473,8 @@ public class BluetoothSerialService {
     }
 
     public void run() {
+      final Message timeoutMsg = mHandler.obtainMessage(CONNECT_TIMED_OUT, -1 , -1);
+      
       Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
       setName("ConnectThread" + mSocketType);
 
@@ -480,7 +487,9 @@ public class BluetoothSerialService {
       try {
         // This is a blocking call and will only return on a successful connection or an exception
         Log.i(TAG, "Invoking BluetoothSocket.connect()");
+        mHandler.sendMessageDelayed(timeoutMsg, 5000);
         mmSocket.connect();
+        mHandler.removeMessages(CONNECT_TIMED_OUT);
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
       } catch (IOException e) {
         Method m;
@@ -492,7 +501,11 @@ public class BluetoothSerialService {
           Object[] params = new Object[] {Integer.valueOf(1)};
           mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
           Thread.sleep(500);
+          Log.i(TAG, "Invoking BluetoothSocket.connect()");
+          mHandler.sendMessageDelayed(timeoutMsg, 5000);
           mmSocket.connect();
+          mHandler.removeMessages(CONNECT_TIMED_OUT);
+          Log.i(TAG, "BluetoothSocket.connect() succeeded.");
         } catch (InvocationTargetException invTgtExc) {
           handleConnectionException(invTgtExc);
         } catch (NoSuchMethodException noSuchMethod) {
