@@ -458,10 +458,6 @@ public class BluetoothSerialService {
       Log.e(TAG, "Socket successfully created.");
       mmSocket = tmp;
     }
-    
-    private void handleConnectionException(Exception connectExc) {
-
-    }
 
     public void run() {
       final Message timeoutMsg = mHandler.obtainMessage(CONNECT_TIMED_OUT, -1 , -1);
@@ -488,7 +484,6 @@ public class BluetoothSerialService {
 
         // Start the connected thread
         connected(mmSocket, mmDevice, mSocketType);
-        
       } catch (IOException connectExc) {
         Log.i(TAG, "BluetoothSocket.connect() failed.");
         
