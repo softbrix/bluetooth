@@ -460,19 +460,7 @@ public class BluetoothSerialService {
     }
     
     private void handleConnectionException(Exception connectExc) {
-      try {
-        if (null != mmSocket) {
-          mmSocket.close();
-        }
-        mmSocket = null;
-      } catch (IOException ioExc) {
-        Log.e(TAG, "Unable to close " + mSocketType + " socket handling a connection failure", ioExc);
-        ioExc.printStackTrace();
-      }
 
-      Log.e(TAG, "Connection failed.");
-      connectExc.printStackTrace();
-      connectionFailed();
     }
 
     public void run() {
@@ -492,18 +480,32 @@ public class BluetoothSerialService {
         Log.i(TAG, "Invoking BluetoothSocket.connect()");
         mmSocket.connect();
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
+        
+        // Reset the ConnectThread because we're done
+        synchronized (BluetoothSerialService.this) {
+          mConnectThread = null;
+        }
+
+        // Start the connected thread
+        connected(mmSocket, mmDevice, mSocketType);
+        
       } catch (IOException connectExc) {
         Log.i(TAG, "BluetoothSocket.connect() failed.");
-        handleConnectionException(connectExc);
-      }
+        
+        try {
+          if (null != mmSocket) {
+            mmSocket.close();
+          }
+          mmSocket = null;
+        } catch (IOException ioExc) {
+          Log.e(TAG, "Unable to close " + mSocketType + " socket handling a connection failure", ioExc);
+          ioExc.printStackTrace();
+        }
 
-      // Reset the ConnectThread because we're done
-      synchronized (BluetoothSerialService.this) {
-        mConnectThread = null;
+        Log.e(TAG, "Connection failed.");
+        connectExc.printStackTrace();
+        connectionFailed();
       }
-
-      // Start the connected thread
-      connected(mmSocket, mmDevice, mSocketType);
     }
 
     public void cancel() {
