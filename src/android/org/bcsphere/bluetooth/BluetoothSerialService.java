@@ -524,8 +524,6 @@ public class BluetoothSerialService {
         } catch (InterruptedException interrupted) {
           handleConnectionException(interrupted);
         }
-
-        return;
       }
 
       // Reset the ConnectThread because we're done
