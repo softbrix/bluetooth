@@ -491,7 +491,6 @@ public class BluetoothSerialService {
           if (null != mmSocket) {
             mmSocket.close();
           }
-          mmSocket = null;
         } catch (IOException ioExc) {
           Log.e(TAG, "Unable to close " + mSocketType + " socket handling a connection failure", ioExc);
           ioExc.printStackTrace();
@@ -505,7 +504,9 @@ public class BluetoothSerialService {
 
     public void cancel() {
       try {
-        mmSocket.close();
+        if (null != mmSocket) {
+          mmSocket.close();
+        }
       } catch (IOException e) {
         Log.e(TAG, "close() of connect " + mSocketType + " socket failed", e);
       }
