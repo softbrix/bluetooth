@@ -496,7 +496,8 @@ public class BluetoothSerialService {
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
       } catch (IOException e) {
         Method m;
-        
+
+        mHandler.removeMessages(CONNECT_TIMED_OUT);        
         Log.i(TAG, "BluetoothSocket.connect() failed: " + e.toString());
         
         Class<?> clazz = mmSocket.getRemoteDevice().getClass();
