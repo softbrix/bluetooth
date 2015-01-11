@@ -347,25 +347,25 @@ public class BluetoothSerialService {
     private String uuidstr;
 
     public AcceptThread(String name,UUID uuid,boolean secure,BCBluetooth bluetooth,BluetoothSerialService serialService) {
-      mSocketType = secure ? "Secure":"Insecure";
+      this.name = name;
       bcbluetooth = bluetooth;
       service = serialService;
-      this.name = name;
       this.uuidstr = uuid.toString();
+      BluetoothServerSocket tmp = null;
+      mSocketType = secure ? "Secure":"Insecure";
 
       // Create a new listening server socket
       try {
-        BluetoothServerSocket tmp = null;
         if (secure) {
           tmp = mAdapter.listenUsingRfcommWithServiceRecord(name, uuid);
         } else {
           tmp = mAdapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid);
         }
-        mmServerSocket = tmp;
       } catch (IOException e) {
         Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
-        mmServerSocket = null;
       }
+      
+      mmServerSocket = tmp;
     }
 
     public void run() {
