@@ -495,7 +495,7 @@ public class BluetoothSerialService {
           mmSocket.connect();
         } catch (NoSuchMethodException noSuchMethod) {
           handleConnectionException(noSuchMethod);
-        } catch (IllecalAccessException illegalAccess) {
+        } catch (IllegalAccessException illegalAccess) {
           handleConnectionException(illegalAccess);
         } catch (IOException ioExc) {
           handleConnectionException(ioExc);
