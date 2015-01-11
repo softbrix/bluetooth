@@ -493,6 +493,9 @@ public class BluetoothSerialService {
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
       } catch (IOException e) {
         Method m;
+        
+        Log.i(TAG, "BluetoothSocket.connect() failed: " + e.toString());
+        
         Class<?> clazz = mmSocket.getRemoteDevice().getClass();
         Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
 
@@ -500,7 +503,7 @@ public class BluetoothSerialService {
           m = clazz.getMethod("createRfcommSocket", paramTypes);
           Object[] params = new Object[] {Integer.valueOf(1)};
           mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
-          Thread.sleep(500);
+          Thread.sleep(5000);
           Log.i(TAG, "Invoking BluetoothSocket.connect()");
           mHandler.sendMessageDelayed(timeoutMsg, 5000);
           mmSocket.connect();
