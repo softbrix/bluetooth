@@ -492,9 +492,9 @@ public class BluetoothSerialService {
         Log.i(TAG, "Invoking BluetoothSocket.connect()");
         mmSocket.connect();
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
-      } catch (IOException e) {
+      } catch (IOException connectExc) {
         Log.i(TAG, "BluetoothSocket.connect() failed.");
-        handleConnectionException(interrupted);
+        handleConnectionException(connectExc);
       }
 
       // Reset the ConnectThread because we're done
