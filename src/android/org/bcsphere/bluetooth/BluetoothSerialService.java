@@ -490,40 +490,11 @@ public class BluetoothSerialService {
       try {
         // This is a blocking call and will only return on a successful connection or an exception
         Log.i(TAG, "Invoking BluetoothSocket.connect()");
-        mHandler.sendMessageDelayed(timeoutMsg, 5000);
         mmSocket.connect();
-        mHandler.removeMessages(CONNECT_TIMED_OUT);
         Log.i(TAG, "BluetoothSocket.connect() succeeded.");
       } catch (IOException e) {
-        Method m;
-
-        mHandler.removeMessages(CONNECT_TIMED_OUT);        
-        Log.i(TAG, "BluetoothSocket.connect() failed: " + e.toString());
-        
-        Class<?> clazz = mmSocket.getRemoteDevice().getClass();
-        Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
-
-        try {
-          m = clazz.getMethod("createRfcommSocket", paramTypes);
-          Object[] params = new Object[] {Integer.valueOf(1)};
-          mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
-          Thread.sleep(5000);
-          Log.i(TAG, "Invoking BluetoothSocket.connect()");
-          mHandler.sendMessageDelayed(timeoutMsg, 5000);
-          mmSocket.connect();
-          mHandler.removeMessages(CONNECT_TIMED_OUT);
-          Log.i(TAG, "BluetoothSocket.connect() succeeded.");
-        } catch (InvocationTargetException invTgtExc) {
-          handleConnectionException(invTgtExc);
-        } catch (NoSuchMethodException noSuchMethod) {
-          handleConnectionException(noSuchMethod);
-        } catch (IllegalAccessException illegalAccess) {
-          handleConnectionException(illegalAccess);
-        } catch (IOException ioExc) {
-          handleConnectionException(ioExc);
-        } catch (InterruptedException interrupted) {
-          handleConnectionException(interrupted);
-        }
+        Log.i(TAG, "BluetoothSocket.connect() failed.");
+        handleConnectionException(interrupted);
       }
 
       // Reset the ConnectThread because we're done
