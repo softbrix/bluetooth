@@ -493,6 +493,8 @@ public class BluetoothSerialService {
           mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
           Thread.sleep(500);
           mmSocket.connect();
+        } catch (InvocationTargetException invTgtExc) {
+          handleConnectionException(invTgtExc);
         } catch (NoSuchMethodException noSuchMethod) {
           handleConnectionException(noSuchMethod);
         } catch (IllegalAccessException illegalAccess) {
