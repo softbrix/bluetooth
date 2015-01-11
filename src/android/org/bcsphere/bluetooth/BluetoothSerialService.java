@@ -122,6 +122,7 @@ public class BluetoothSerialService {
           
         case CONNECT_LOST:
           notifyConnectionLost();
+          stop();
           break;
           
         case CONNECT_TIMED_OUT:
@@ -558,10 +559,15 @@ public class BluetoothSerialService {
           // Send the new data String to the UI Activity
           mHandler.obtainMessage(MESSAGE_READ, data).sendToTarget();
         } catch (IOException e) {
-          Log.e(TAG, "disconnected", e);
+          Log.e(TAG, "Read failed. Disconnecting.", e);
+          
+          try {
+            mmSocket.close()
+          } catch (IOException closeExc) {
+            Log.e(TAG, "Unable to close socket after read error. - Probably already closed.", e);
+          }
+          
           connectionLost();
-          // Start the service over to restart listening mode
-          //BluetoothSerialService.this.start();
           break;
         }
       }
@@ -598,15 +604,20 @@ public class BluetoothSerialService {
       connectCallback.sendPluginResult(result);
     }
   }
+
   private void notifyConnectionLost() {
     if (disconnectCallback != null) {
+      Log.i(TAG, "Notifying about lost connection.");
       JSONObject obj = new JSONObject();
       Tools.addProperty(obj, Tools.DEVICE_ADDRESS, deviceAddress);
       PluginResult result = new PluginResult(PluginResult.Status.OK,obj);
       result.setKeepCallback(true);
       disconnectCallback.sendPluginResult(result);
+    } else {
+      Log.i(TAG, "Unable to notify about lost connection. NO CALLBACK");
     }
   }
+
   private void notifyConnectionFailed() {
     if (connectCallback != null) {
       JSONObject obj = new JSONObject();
@@ -615,6 +626,7 @@ public class BluetoothSerialService {
       connectCallback = null;
     }
   }
+
   private void sendDataToSubscriber(byte[] data) {
     if (data != null) {
       JSONObject obj = new JSONObject();
