@@ -450,6 +450,22 @@ public class BluetoothSerialService {
       }
       mmSocket = tmp;
     }
+    
+    private handleConnectionException(Exception connectExc) {
+      try {
+        if (null != mmSocket) {
+          mmSocket.close();
+        }
+        mmSocket = null;
+      } catch (IOException ioExc) {
+        Log.e(TAG, "Unable to close " + mSocketType + " socket handling a connection failure", ioExc);
+        ioExc.printStackTrace();
+      }
+
+      Log.e(TAG, "Connection failed.");
+      connectExc.printStackTrace();
+      connectionFailed();
+    }
 
     public void run() {
       Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
@@ -470,28 +486,23 @@ public class BluetoothSerialService {
         Method m;
         Class<?> clazz = mmSocket.getRemoteDevice().getClass();
         Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
-         
+
         try {
           m = clazz.getMethod("createRfcommSocket", paramTypes);
           Object[] params = new Object[] {Integer.valueOf(1)};
           mmSocket = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
           Thread.sleep(500);
           mmSocket.connect();
-        } catch (IOException|NoSuchMethodException|IllegalAccessException e1) {
-          try {
-            mmSocket.close();
-          } catch (IOException e2) {
-            Log.e(TAG, "unable to close() " + mSocketType + " socket during connection failure", e1);
-            e2.printStackTrace();
-          }
-          
-          Log.e(TAG, e1.toString());
-          e1.printStackTrace();
-          connectionFailed();
-        } catch (InterruptedException e1) {
-          e1.printStackTrace();
+        } catch (NoSuchMethodException noSuchMethod) {
+          handleConnectionException(noSuchMethod);
+        } catch (IllecalAccessException illegalAccess) {
+          handleConnectionException(illegalAccess);
+        } catch (IOException ioExc) {
+          handleConnectionException(ioExc);
+        } catch (InterruptedException interrupted) {
+          handleConnectionException(interrupted);
         }
-          
+
         return;
       }
 
