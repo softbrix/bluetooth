@@ -438,21 +438,24 @@ public class BluetoothSerialService {
     private final BluetoothDevice mmDevice;
     private String mSocketType;
 
-    public ConnectThread(BluetoothDevice device, UUID uuid,boolean secure) {
+    public ConnectThread(BluetoothDevice device, UUID uuid, boolean secure) {
       mmDevice = device;
       BluetoothSocket tmp = null;
       mSocketType = secure ? "Secure" : "Insecure";
 
-      // Get a BluetoothSocket for a connection with the given BluetoothDevice
       try {
         if (secure) {
+          Log.e(TAG, "Creating secure bluetooth socket");
           tmp = device.createRfcommSocketToServiceRecord(uuid);
         } else {
+          Log.e(TAG, "Creating insecure bluetooth socket");
           tmp = device.createInsecureRfcommSocketToServiceRecord(uuid);
         }
       } catch (IOException e) {
         Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
       }
+      
+      Log.e(TAG, "Socket successfully created.");
       mmSocket = tmp;
     }
     
