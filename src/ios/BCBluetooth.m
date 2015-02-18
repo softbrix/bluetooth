@@ -1034,7 +1034,7 @@
 # pragma mark -
 
 - (BOOL)existCommandArguments:(NSArray*)comArguments{
-    return FALSE;
+    return TRUE;
 }
 
 - (NSString*)getCommandArgument:(NSArray*)arguments fromKey:(NSString*)key{
