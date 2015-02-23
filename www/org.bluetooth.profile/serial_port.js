@@ -46,6 +46,12 @@
 					this.subscribeCallback(data);
 				}
 			},
+      
+      processSubscriptionCallback : function (s) {
+        if (this.subscriptionCallback != null) {
+          this.subscriptionCallback(s);
+        }
+      },
 			
 			/**
 			 * Connect to device (choose the connection by device.type)
@@ -209,11 +215,7 @@
 					var readcharproperty = ["read","notify"];
 					var readcharacter = new BC.Characteristic({uuid:readcharUUID,value:"",type:"Hex",property:readcharproperty,permission:readcharpermission});
 					readcharacter.addEventListener("oncharacteristicread",function(s){});
-          readcharacter.addEventListener("onsubscribestatechange", function (s) {
-            if (null !== this.subscriptionCallback) {
-              this.subscriptionCallback(s);
-            }
-          });
+          readcharacter.addEventListener("onsubscribestatechange", this.processSubscriptionCallback);
 
 					var writecharpermission = ["write"];
 					var writecharproperty = ["write"];
