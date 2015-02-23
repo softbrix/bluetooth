@@ -201,6 +201,10 @@
 			 * @param {boolean} [secure] - the RFCOMM connection is security or not
 			 */	
 			listen : function(name,uuid,secure,callback){
+        var thiz;
+        
+        thiz = this;
+        
         if (!callback) {
           this.subscriptionCallback = null;
         } else {
@@ -217,7 +221,9 @@
 					var readcharproperty = ["read","notify"];
 					var readcharacter = new BC.Characteristic({uuid:readcharUUID,value:"",type:"Hex",property:readcharproperty,permission:readcharpermission});
 					readcharacter.addEventListener("oncharacteristicread",function(s){});
-          readcharacter.addEventListener("onsubscribestatechange", this.processSubscriptionCallback);
+          readcharacter.addEventListener("onsubscribestatechange", function (s) {
+            thiz.processSubscriptionCallback(s)
+          });
 
 					var writecharpermission = ["write"];
 					var writecharproperty = ["write"];
