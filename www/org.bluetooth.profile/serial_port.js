@@ -209,7 +209,7 @@
 					var readcharproperty = ["read","notify"];
 					var readcharacter = new BC.Characteristic({uuid:readcharUUID,value:"",type:"Hex",property:readcharproperty,permission:readcharpermission});
 					readcharacter.addEventListener("oncharacteristicread",function(s){});
-          readcharacter.addEventListener("onsubscribestatechanged", function (s) {
+          readcharacter.addEventListener("onsubscribestatechange", function (s) {
             if (null !== this.subscriptionCallback) {
               this.subscriptionCallback(s);
             }
