@@ -192,7 +192,13 @@
 			 * @param {string} [uuid] - the uuid of this connection, for the RFCOMM connection only
 			 * @param {boolean} [secure] - the RFCOMM connection is security or not
 			 */	
-			listen : function(name,uuid,secure){
+			listen : function(name,uuid,secure,callback){
+        if (!callback) {
+          this.subscriptionCallback = null;
+        } else {
+          this.subscriptionCallback = callback;
+        }
+        
 				if(API !== "ios" && name && uuid && secure){
 					BC.Bluetooth.RFCOMMListen(name,uuid,secure);
 					role = this.SLAVE;
@@ -203,6 +209,11 @@
 					var readcharproperty = ["read","notify"];
 					var readcharacter = new BC.Characteristic({uuid:readcharUUID,value:"",type:"Hex",property:readcharproperty,permission:readcharpermission});
 					readcharacter.addEventListener("oncharacteristicread",function(s){});
+          readcharacter.addEventListener("onsubscribestatechanged", function (s) {
+            if (null !== this.subscriptionCallback) {
+              this.subscriptionCallback(s);
+            }
+          });
 
 					var writecharpermission = ["write"];
 					var writecharproperty = ["write"];
