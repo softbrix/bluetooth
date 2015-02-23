@@ -51,7 +51,10 @@
         alert('processSubscriptionCallback()');
         
         if (this.subscriptionCallback != null) {
+          alert(this.subscriptionCallback);
           this.subscriptionCallback(s);
+        } else {
+          alert('No subscription callback.');
         }
       },
 			
@@ -221,7 +224,7 @@
 					var readcharproperty = ["read","notify"];
 					var readcharacter = new BC.Characteristic({uuid:readcharUUID,value:"",type:"Hex",property:readcharproperty,permission:readcharpermission});
 					readcharacter.addEventListener("oncharacteristicread",function(s){});
-          readcharacter.addEventListener("onsubscribestatechange", function (s) {
+          readcharacter.addEventListener("onsubscribestatechange",function (s) {
             thiz.processSubscriptionCallback(s)
           });
 
