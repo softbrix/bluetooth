@@ -47,14 +47,9 @@
 				}
 			},
       
-      processSubscriptionCallback : function(s) {
-        alert('processSubscriptionCallback()');
-        
+      processSubscriptionCallback : function(s) {       
         if (this.subscriptionCallback != null) {
-          alert(this.subscriptionCallback);
           this.subscriptionCallback(s);
-        } else {
-          alert('No subscription callback.');
         }
       },
 			
