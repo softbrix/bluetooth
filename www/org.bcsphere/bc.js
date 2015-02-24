@@ -1894,8 +1894,9 @@
 			 * @param {function} [errorCallback] - Error callback
 			 * @instance
 			 */
-			notify : function(type,value,success,error){
-        console.log('Notifying characteristic value change.');
+			notify : function(type,value,success,error) {
+        this.success = success;
+        this.error = error;
 				if(type.toLowerCase() == "hex"){
 					value = BC.Tools.HexToBase64(value);
 				}else if(type.toLowerCase() == "ascii"){
