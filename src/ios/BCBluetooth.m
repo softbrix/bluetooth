@@ -643,19 +643,21 @@
 }
 
 - (void)notify:(CDVInvokedUrlCommand*)command{
-    if ([self existCommandArguments:command.arguments]) {
-        NSLog(@"Notifying characteristic value change.");
-        NSString *uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
-        NSString *chatacteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
-        NSString *dataString = [self getCommandArgument:command.arguments fromKey:DATA];
-        NSData *data = [NSData dataFromBase64String:dataString];
-        CBMutableCharacteristic *characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:chatacteristicIndex];
-        if ([self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil]){
-        }else{
-        }
+  if ([self existCommandArguments:command.arguments]) {
+    NSString *uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
+    NSString *chatacteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
+    NSString *dataString = [self getCommandArgument:command.arguments fromKey:DATA];
+    NSData *data = [NSData dataFromBase64String:dataString];
+    CBMutableCharacteristic *characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:chatacteristicIndex];
+    if ([self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil]){
+      CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
+      [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }else{
-        [self error:command.callbackId];
+      [self error:command.callbackId];
     }
+  }else{
+    [self error:command.callbackId];
+  }
 }
 
 /*--------------------------------------------------------------------------*/
