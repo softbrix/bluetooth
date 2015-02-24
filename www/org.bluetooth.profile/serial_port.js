@@ -131,8 +131,13 @@
 			 * @param {function} successCallback - Success callback
 			 * @param {function} [errorCallback] - Error callback
 			 */
-			write : function(device,writeType,writeValue,successFunc,errorFunc){
+			write : function(device,writeType,writeValue,successFunc,errorFunc) {
+        alert('API=' + API.toString());
+        alert('role=' + role.toString());
+        alert('device=' + device.toString());
+        alert('writeType=' writeType.toString());
 				if(API == "ios" && role == SLAVE){
+          alert('service.getCharacteristicByUUID(readcharUUID)[0].notify()');
 					service.getCharacteristicByUUID(readcharUUID)[0].notify(writeType,writeValue,successFunc,errorFunc);
 				}else{
 					if(device.type == "Classical"){
