@@ -238,8 +238,9 @@
 					serviceToAdd.addCharacteristic(writecharacter);
 					
 					//Adds a service to the smart phone.
-					BC.Bluetooth.AddService(serviceToAdd,function(){
+					BC.Bluetooth.AddService(serviceToAdd, function () {
 						service = serviceToAdd;
+            alert('role = SLAVE');
 						role = SLAVE
 					},function(){
 						alert("Listening error.");
