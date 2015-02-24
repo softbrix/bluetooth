@@ -224,7 +224,7 @@
           });
 
 					var writecharpermission = ["write"];
-					var writecharproperty = ["write"];
+					var writecharproperty = ["write", "writeWithoutResponse"];
 					var writecharacter = new BC.Characteristic({uuid:writecharUUID,value:"01",type:"Hex",property:writecharproperty,permission:writecharpermission});
 					writecharacter.addEventListener("oncharacteristicwrite", function (s) {
 						var data = {};
