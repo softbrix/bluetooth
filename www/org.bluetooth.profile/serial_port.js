@@ -159,11 +159,11 @@
 					this.subscribeCallback = callback;
 				}else{
 					if(device.type == "Classical"){
-					   device.rfcommSubscribe(callback);
+            device.rfcommSubscribe(callback);
 					}else if(device.type == "BLE"){
-					   if(role == MASTER){
-							this.subscribeCallback = callback;
-					   }
+            if(role == MASTER){
+              this.subscribeCallback = callback;
+            }
 					}
 				}
 			},
@@ -218,19 +218,19 @@
 					var readcharpermission = ["read"];
 					var readcharproperty = ["read","notify"];
 					var readcharacter = new BC.Characteristic({uuid:readcharUUID,value:"",type:"Hex",property:readcharproperty,permission:readcharpermission});
-					readcharacter.addEventListener("oncharacteristicread",function(s){});
-          readcharacter.addEventListener("onsubscribestatechange",function (s) {
+					readcharacter.addEventListener("oncharacteristicread", function (s) {});
+          readcharacter.addEventListener("onsubscribestatechange", function (s) {
             thiz.processSubscriptionCallback(s)
           });
 
 					var writecharpermission = ["write"];
 					var writecharproperty = ["write"];
 					var writecharacter = new BC.Characteristic({uuid:writecharUUID,value:"01",type:"Hex",property:writecharproperty,permission:writecharpermission});
-					writecharacter.addEventListener("oncharacteristicwrite",function(s){
+					writecharacter.addEventListener("oncharacteristicwrite", function (s) {
 						var data = {};
 						data.value = s.writeValue;
 						data.date = new Date().getTime();
-						this.processRcvDataCallback(data);
+						thiz.processRcvDataCallback(data);
 					});
 
 					//Adds a characteristic to a service. 
