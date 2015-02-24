@@ -644,6 +644,7 @@
 
 - (void)notify:(CDVInvokedUrlCommand*)command{
     if ([self existCommandArguments:command.arguments]) {
+        NSLog(@"Notifying characteristic value change.");
         NSString *uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
         NSString *chatacteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
         NSString *dataString = [self getCommandArgument:command.arguments fromKey:DATA];
