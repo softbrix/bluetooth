@@ -132,18 +132,13 @@
 			 * @param {function} [errorCallback] - Error callback
 			 */
 			write : function(device,writeType,writeValue,successFunc,errorFunc) {
-        alert('API=' + API);
-        alert('role=' + role);
-        alert('device=' + device);
-        alert('writeType=' + writeType);
-				if(API == "ios" && role == SLAVE){
-          alert('service.getCharacteristicByUUID(readcharUUID)[0].notify()');
+				if (API == "ios" && role == SLAVE) {
 					service.getCharacteristicByUUID(readcharUUID)[0].notify(writeType,writeValue,successFunc,errorFunc);
-				}else{
-					if(device.type == "Classical"){
+				} else {
+					if (device.type == "Classical") {
 						device.rfcommWrite(writeType,writeValue,successFunc,errorFunc);
-					}else if(device.type == "BLE"){
-						device.discoverServices(function(){
+					} else if (device.type == "BLE") {
+						device.discoverServices(function () {
 							var serviceToWrite = device.getServiceByUUID(serviceUUID)[0];
 							serviceToWrite.write(writeType,writeValue,successFunc,errorFunc);
 						});
@@ -245,7 +240,6 @@
 					//Adds a service to the smart phone.
 					BC.Bluetooth.AddService(serviceToAdd, function () {
 						service = serviceToAdd;
-            alert('role = SLAVE');
 						role = SLAVE
 					},function(){
 						alert("Listening error.");

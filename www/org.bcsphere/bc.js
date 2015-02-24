@@ -1895,7 +1895,6 @@
 			 * @instance
 			 */
 			notify : function(type,value,success,error){
-        alert('Called Characteristic.notify().');
 				if(type.toLowerCase() == "hex"){
 					value = BC.Tools.HexToBase64(value);
 				}else if(type.toLowerCase() == "ascii"){
@@ -1909,7 +1908,6 @@
 					return;
 				}
 				if(this.property.contains("notify")){
-          alert('Called BC.bluetooth.notify().');
 					BC.bluetooth.notify(this,value);
 				}else{
 					error("This characteristic notify data, please add 'notify' in the property.");
