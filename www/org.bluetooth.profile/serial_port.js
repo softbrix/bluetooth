@@ -132,7 +132,9 @@
 			 * @param {function} [errorCallback] - Error callback
 			 */
 			write : function(device,writeType,writeValue,successFunc,errorFunc) {
+        console.log('SerialPortProfile.write() called.');
 				if (API == "ios" && role == SLAVE) {
+          console.log('SerialPortProfile.write() notifies characteristic change.');
 					service.getCharacteristicByUUID(readcharUUID)[0].notify(writeType,writeValue,successFunc,errorFunc);
 				} else {
 					if (device.type == "Classical") {
