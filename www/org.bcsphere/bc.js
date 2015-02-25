@@ -1847,9 +1847,12 @@
 				}
 			},
 
-			subscribeCallback : function(){
+			subscribeCallback : function() {
 				var obj = arguments[1];
 				var data = {};
+        
+        console.log('subscribeCallback()');
+        
 				data.value = new BC.DataValue(BC.Tools.Base64ToBuffer(obj.value));
 				//data.value = new BC.DataValue(obj.value);
 				data.serviceIndex = obj.serviceIndex;
