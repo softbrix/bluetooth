@@ -36,13 +36,13 @@
 		 */
 		var SerialPortProfile = BC.SerialPortProfile = BC.Profile.extend({
 
-			processRcvDataCallback : function(data){
-				if(this.subscribeCallback == null){
-					if(this.buffer == null){
+			processRcvDataCallback : function(data) {
+				if (this.subscribeCallback == null) {
+					if (this.buffer == null) {
 						this.buffer = new BC.DataValue(null);
 					}
 					this.buffer.append(data.value);
-				}else{
+				} else {
 					this.subscribeCallback(data);
 				}
 			},
@@ -77,7 +77,7 @@
 						serviceTosub.subscribe(this.processRcvDataCallback);
 					});
 					successFunc();
-				},errorFunc,uuid,secure);
+				}, errorFunc, uuid, secure);
 			},
 			
 			/**
@@ -230,6 +230,7 @@
 					var writecharacter = new BC.Characteristic({uuid:writecharUUID,value:"01",type:"Hex",property:writecharproperty,permission:writecharpermission});
 					writecharacter.addEventListener("oncharacteristicwrite", function (s) {
 						var data = {};
+            console.log('oncharacteristicwrite');
 						data.value = s.writeValue;
 						data.date = new Date().getTime();
 						thiz.processRcvDataCallback(data);

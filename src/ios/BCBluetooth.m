@@ -741,6 +741,7 @@
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didReceiveWriteRequests:(NSArray *)requests{
+    NSLog("didReceiveWriteRequests()");
     CBATTRequest *writeRequest = [requests objectAtIndex:0];
     [peripheral respondToRequest:writeRequest withResult:CBATTErrorSuccess];
     CBCharacteristic *characteristicWrite = writeRequest.characteristic;
