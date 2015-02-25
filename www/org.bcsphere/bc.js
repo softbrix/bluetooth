@@ -1841,7 +1841,7 @@
 			 * @instance
 			 */
 			subscribe : function(callback){
-				this.callback = callback;
+				this.subsCallback = callback;
 				if(this.property.contains("notify") || this.property.contains("indicate")){
 					BC.bluetooth.subscribe(this);
 				}
@@ -1856,7 +1856,7 @@
 				data.characteristicIndex = obj.characteristicIndex;
 				data.date = obj.date;
 				data.deviceAddress = obj.deviceAddress;
-				this.callback(data);
+				this.subsCallback(data);
 			},
 
 			/**

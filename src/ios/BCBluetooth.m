@@ -650,6 +650,8 @@
     NSData *data = [NSData dataFromBase64String:dataString];
     CBMutableCharacteristic *characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:chatacteristicIndex];
     if ([self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil]){
+      NSMutableDictionary *callbackInfo = [[NSMutableDictionary alloc] init];
+      [callbackInfo setValue:SUCCESS forKey:MES];
       CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
       [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }else{
