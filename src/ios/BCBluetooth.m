@@ -658,6 +658,7 @@
     notified = [self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil];
     
     if (notified){
+      NSLog(@"-updateValue succeeded");
       CDVPluginResult* result;
       NSMutableDictionary *info;
       
@@ -667,14 +668,14 @@
        
       [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     } else {
-      NSLog(@"-updateValue postponed.");
+      NSLog(@"-updateValue postponed");
       
       self.notifyData = data;
       self.notifyCallbackId = command.callbackId;
       self.notifyCharacteristic = characteristic;
     }
   } else {
-    NSLog(@"-notify was called with insufficient arguments.");
+    NSLog(@"-notify was called with insufficient arguments");
     [self error:command.callbackId];
   }
 }
@@ -744,7 +745,7 @@
       CDVPluginResult *result;
       NSMutableDictionary *info;
       
-      NSLog(@"-updateValue retry succeeded.");
+      NSLog(@"-updateValue retry succeeded");
       
       info = [[NSMutableDictionary alloc] init];
       [info setValue:SUCCESS forKey:MES];
@@ -754,7 +755,7 @@
     }
     else
     {
-      NSLog(@"-updateValue retry failed.");
+      NSLog(@"-updateValue retry failed");
     }
     
     self.notifyData = nil;
