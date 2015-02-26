@@ -41,6 +41,10 @@
 @property (strong, nonatomic) NSMutableDictionary *valueAndCharacteristicDic;
 @property (assign, nonatomic) BOOL isEndOfAddService;
 
+@property (assign, nonatomic) NSData *notifyData;
+@property (assign, nonatomic) NSString *notifyCallbackId;
+@property (assign, nonatomic) CBMutableCharacteristic *notifyCharacteristic;
+
 - (void)getEnvironment:(CDVInvokedUrlCommand *)command;
 - (void)addEventListener:(CDVInvokedUrlCommand *)command;
 - (void)getBluetoothState:(CDVInvokedUrlCommand*)command;

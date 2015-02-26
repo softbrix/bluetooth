@@ -647,7 +647,7 @@
     NSData *data;
     BOOL notified;
     NSString *uniqueID;
-    NSString *chatacteristicIndex;
+    NSString *characteristicIndex;
     CBMutableCharacteristic *characteristic;
     
     uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
