@@ -642,22 +642,38 @@
     }
 }
 
-- (void)notify:(CDVInvokedUrlCommand*)command{
+- (void)notify:(CDVInvokedUrlCommand*)command {
   if ([self existCommandArguments:command.arguments]) {
-    NSString *uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
-    NSString *chatacteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
-    NSString *dataString = [self getCommandArgument:command.arguments fromKey:DATA];
-    NSData *data = [NSData dataFromBase64String:dataString];
-    CBMutableCharacteristic *characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:chatacteristicIndex];
-    if ([self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil]){
-      NSMutableDictionary *callbackInfo = [[NSMutableDictionary alloc] init];
-      [callbackInfo setValue:SUCCESS forKey:MES];
-      CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
+    NSData *data;
+    BOOL notified;
+    NSString *uniqueID;
+    NSString *chatacteristicIndex;
+    CBMutableCharacteristic *characteristic;
+    
+    uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
+    data = [NSData dataFromBase64String:[self getCommandArgument:command.arguments fromKey:DATA]];
+    characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
+    characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:chatacteristicIndex];
+    
+    notified = [self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil];
+    
+    if (notified){
+      CDVPluginResult* result;
+      NSMutableDictionary *info;
+      
+      info = [[NSMutableDictionary alloc] init];
+      [info setValue:SUCCESS forKey:MES];
+      result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
+       
       [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-    }else{
-      [self error:command.callbackId];
+    } else {
+      NSLog(@"-updateValue postponed.");
+      self.notifyData = data;
+      self.notifyCallbackId = command.callbackId;
+      self.notifyCharacteristic = characteristic;
     }
-  }else{
+  } else {
+    NSLog(@"-notify was called with insufficient arguments.");
     [self error:command.callbackId];
   }
 }
@@ -715,7 +731,33 @@
     [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];
 }
 
-- (void)peripheralManagerReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral{
+- (void)peripheralManagerReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral
+{
+  BOOL notified;
+  
+  if (self.notifyData)
+  {
+    notified = [peripheral updateValue:self.notifyData forCharacteristic:self.notifyCharacteristic onSubscribedCentrals:nil];
+    if (notified)
+    {
+      CDVPluginResult *result;
+      NSMutableDictionary *info;
+      
+      NSLog(@"-updateValue retry succeeded.");
+      
+      info = [[NSMutableDictionary alloc] init];
+      [info setValue:SUCCESS forKey:MES];
+      result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
+      
+      [self.commandDelegate sendPluginResult:result callbackId:self.notifyCallbackId];
+    }
+    else
+    {
+      NSLog(@"-updateValue retry failed.");
+    }
+    
+    self.notifyData = nil;
+  }
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didReceiveReadRequest:(CBATTRequest *)request{
@@ -741,7 +783,7 @@
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didReceiveWriteRequests:(NSArray *)requests{
-    NSLog("didReceiveWriteRequests()");
+    NSLog(@"didReceiveWriteRequests()");
     CBATTRequest *writeRequest = [requests objectAtIndex:0];
     [peripheral respondToRequest:writeRequest withResult:CBATTErrorSuccess];
     CBCharacteristic *characteristicWrite = writeRequest.characteristic;
