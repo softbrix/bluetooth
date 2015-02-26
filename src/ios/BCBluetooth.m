@@ -653,7 +653,7 @@
     uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
     data = [NSData dataFromBase64String:[self getCommandArgument:command.arguments fromKey:DATA]];
     characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
-    characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:chatacteristicIndex];
+    characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:characteristicIndex];
     
     notified = [self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil];
     
@@ -668,6 +668,7 @@
       [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     } else {
       NSLog(@"-updateValue postponed.");
+      
       self.notifyData = data;
       self.notifyCallbackId = command.callbackId;
       self.notifyCharacteristic = characteristic;
