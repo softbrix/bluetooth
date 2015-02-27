@@ -41,9 +41,9 @@
 @property (strong, nonatomic) NSMutableDictionary *valueAndCharacteristicDic;
 @property (assign, nonatomic) BOOL isEndOfAddService;
 
-@property (assign, nonatomic) NSData *notifyData;
-@property (assign, nonatomic) NSString *notifyCallbackId;
-@property (assign, nonatomic) CBMutableCharacteristic *notifyCharacteristic;
+@property (strong, nonatomic) NSData *notifyData;
+@property (strong, nonatomic) NSString *notifyCallbackId;
+@property (strong, nonatomic) CBMutableCharacteristic *notifyCharacteristic;
 
 - (void)getEnvironment:(CDVInvokedUrlCommand *)command;
 - (void)addEventListener:(CDVInvokedUrlCommand *)command;
