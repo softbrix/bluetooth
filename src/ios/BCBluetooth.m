@@ -733,7 +733,7 @@
     [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];
 }
 
-- (void)peripheralManagerReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral
+- (void)peripheralManagerIsReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral
 {
   BOOL notified;
   
