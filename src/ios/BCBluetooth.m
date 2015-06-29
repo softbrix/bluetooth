@@ -1,12 +1,12 @@
 /*
  Copyright 2013-2014 JUMA Technology
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -177,11 +177,11 @@
 
 - (void)pluginInitialize{
     [super pluginInitialize];
-    
+
     peripheralAndUUID = [[NSMutableDictionary alloc] init];
     isEndOfAddService = FALSE;
     isFindingPeripheral = FALSE;
-    
+
     myPeripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil];
     myCentralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
 
@@ -446,7 +446,7 @@
                     [callbackInfo setValue:SUCCESS forKey:MES];
                     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
                     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-                    
+
                 }else if (characteristic.properties & CBCharacteristicPropertyWrite){
                     [peripheral writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
                 }
@@ -547,7 +547,7 @@
                         NSString *onWriteRequest  = [NSString stringWithFormat:@"%@",[[characteristics objectAtIndex:j] valueForKey:ONWRIESTREQUEST]];
                         NSMutableArray *newCharacteristicProperty = [[NSMutableArray alloc] initWithArray:[[characteristics objectAtIndex:j] valueForKey:CHARACTERISTIC_PROPERTY]];
                         NSMutableArray *newCharacteristicPermission = [[NSMutableArray alloc] initWithArray:[[characteristics objectAtIndex:j] valueForKey:CHARACTERISTIC_PERMISSION]];
-                        
+
                         NSMutableArray *descriptors = [[characteristics objectAtIndex:j] valueForKey:DESCRIPTORS];
                         BOOL addDescriptor = FALSE;
                         if (descriptors.count > 0) {
@@ -649,27 +649,27 @@
     NSString *uniqueID;
     NSString *characteristicIndex;
     CBMutableCharacteristic *characteristic;
-    
+
     uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
     data = [NSData dataFromBase64String:[self getCommandArgument:command.arguments fromKey:DATA]];
     characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
     characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:characteristicIndex];
-    
+
     notified = [self.self.myPeripheralManager updateValue:data forCharacteristic:characteristic onSubscribedCentrals:nil];
-    
+
     if (notified){
       NSLog(@"-updateValue succeeded");
       CDVPluginResult* result;
       NSMutableDictionary *info;
-      
+
       info = [[NSMutableDictionary alloc] init];
       [info setValue:SUCCESS forKey:MES];
       result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
-       
+
       [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     } else {
       NSLog(@"-updateValue postponed");
-      
+
       self.notifyData = data;
       self.notifyCallbackId = command.callbackId;
       self.notifyCharacteristic = characteristic;
@@ -696,47 +696,66 @@
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didAddService:(CBService *)service error:(NSError *)error{
-    if (!error) {
-        if (self.isEndOfAddService) {
-            self.isEndOfAddService = FALSE;
-            [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
-                    CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
-            CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
-        }
-    }else{
-        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-        [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
+  if (!error) {
+    if (self.isEndOfAddService) {
+      self.isEndOfAddService = FALSE;
+      [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
+        CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
+      CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
     }
+  }else{
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
+  }
 }
 
 - (void)peripheralManagerDidStartAdvertising:(CBPeripheralManager *)peripheral error:(NSError *)error{
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central
-                            didSubscribeToCharacteristic:(CBCharacteristic *)characteristic{
-    CBCharacteristic *characteristicNotify = characteristic;
-    CBService *service = characteristicNotify.service;
-    NSMutableDictionary *callbackInfo = [self getUniqueIDWithService:service andCharacteristicIndex:characteristicNotify];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
-    [result setKeepCallbackAsBool:TRUE];
-    [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONSUBSCRIBE]];
+    didSubscribeToCharacteristic:(CBCharacteristic *)characteristic
+{
+  CBService *service;
+  CDVPluginResult* result;
+  NSMutableDictionary *callbackInfo;
+  CBCharacteristic *characteristicNotify;
+
+  characteristicNotify = characteristic;
+  service = characteristicNotify.service;
+  callbackInfo = [self getUniqueIDWithService:service andCharacteristicIndex:characteristicNotify];
+  result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
+
+  [result setKeepCallbackAsBool:TRUE];
+  [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONSUBSCRIBE]];
+
+  // stop advertising
+  [peripheral stopAdvertising];
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central
-                            didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic{
-    CBCharacteristic *characteristicNotify = characteristic;
-    CBService *service = characteristicNotify.service;
-    NSMutableDictionary *callbackInfo = [self getUniqueIDWithService:service andCharacteristicIndex:characteristicNotify];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
-    [result setKeepCallbackAsBool:TRUE];
-    [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];
+    didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic{
+  CBService *service;
+  CDVPluginResult* result;
+  NSMutableDictionary *callbackInfo;
+  CBCharacteristic *characteristicNotify;
+
+  characteristicNotify = characteristic;
+  service = characteristicNotify.service;
+  result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
+  callbackInfo = [self getUniqueIDWithService:service andCharacteristicIndex:characteristicNotify];
+
+  [result setKeepCallbackAsBool:TRUE];
+  [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];
+  
+  [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
+    CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
 }
 
 - (void)peripheralManagerIsReadyToUpdateSubscribers:(CBPeripheralManager *)peripheral
 {
   BOOL notified;
-  
+
   if (self.notifyData)
   {
     notified = [peripheral updateValue:self.notifyData forCharacteristic:self.notifyCharacteristic onSubscribedCentrals:nil];
@@ -744,20 +763,20 @@
     {
       CDVPluginResult *result;
       NSMutableDictionary *info;
-      
+
       NSLog(@"-updateValue retry succeeded");
-      
+
       info = [[NSMutableDictionary alloc] init];
       [info setValue:SUCCESS forKey:MES];
       result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
-      
+
       [self.commandDelegate sendPluginResult:result callbackId:self.notifyCallbackId];
     }
     else
     {
       NSLog(@"-updateValue retry failed");
     }
-    
+
     self.notifyData = nil;
   }
 }
@@ -846,7 +865,7 @@
             [stopScanTimer invalidate];
         }
     }
-    
+
     NSString *peripheralUUID = [self getPeripheralUUID:peripheral];
     [peripheralAndUUID setValue:[self getScanData:peripheral adv:advertisementData rssi:rssi] forKeyPath:peripheralUUID];
     [self performSelector:@selector(waitNewPacketWithDeviceAddress:) withObject:peripheralUUID afterDelay:0.2];
@@ -1073,7 +1092,7 @@
     }else{
         [self error:[self.callbacks valueForKey:[NSString stringWithFormat:@"%@%@%@",serviceIndex,characteristicIndex,SETNOTIFICATION]]];
     }
-    
+
 }
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverIncludedServicesForService:(CBService *)service error:(NSError *)error {
 }
@@ -1607,7 +1626,7 @@
     [self post:[NSString stringWithFormat:@"device = %@",deviceUUID]];
     [self post:[NSString stringWithFormat:@"uuid = %@",UUID]];
     [self post:@"value:"];
-    
+
     Byte *valueByte = (Byte *)[value bytes];
     NSString *valueString = [NSString stringWithFormat:@"%@",value];
     valueString = [valueString uppercaseString];
