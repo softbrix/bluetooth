@@ -701,6 +701,7 @@
       self.isEndOfAddService = FALSE;
       [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
         CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
+      NSLog(@"Stopped advertising after adding the services.");
       CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
     }
@@ -730,6 +731,7 @@
   [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONSUBSCRIBE]];
 
   // stop advertising
+  NSLog(@"Stopped advertising.");
   [peripheral stopAdvertising];
 }
 
@@ -748,6 +750,7 @@
   [result setKeepCallbackAsBool:TRUE];
   [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];
   
+  NSLog(@"Started advertising.");
   [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
     CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
 }
