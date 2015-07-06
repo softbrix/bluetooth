@@ -683,16 +683,41 @@
 /*--------------------------------------------------------------------------*/
 #pragma mark -
 #pragma mark - CBperipheralManagerDelegate
-- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral {
-    switch (peripheral.state) {
-        case CBPeripheralManagerStatePoweredOn:
-            break;
-        default:
-            if ([self.callbacks objectForKey:ADDSERVICE]) {
-                [self error:[self.callbacks objectForKey:ADDSERVICE]];
-            }
-            break;
-    }
+- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral
+{  
+  switch (peripheral.state) {
+  case CBPeripheralManagerStatePoweredOn:
+    NSLog(@"****Bluetooth is powered ON.");
+    return;
+
+  case CBPeripheralManagerStatePoweredOff:
+    NSLog(@"****Bluetooth is powered OFF.");
+    break;
+    
+  case CBPeripheralManagerStateUnauthorized:
+    NSLog(@"****Bluetooth is NOT AUTHORIZED.");
+    break;
+    
+  case CBPeripheralManagerStateUnsupported:
+    NSLog(@"****Bluetooth is NOT SUPPORTED.");
+    break;
+    
+  case CBPeripheralManagerStateResetting:
+    NSLog(@"****Bluetooth is RESETTING.");
+    break;
+    
+  case CBPeripheralManagerStateUnknown:
+    NSLog(@"****Bluetooth STATE IS UNKNOWN.");
+    break;
+
+  default:
+    NSLog(@"****Bluetooth STATE HAS INVALID VALUE.");
+    break;
+  }
+  
+  if ([self.callbacks objectForKey:ADDSERVICE]) {
+    [self error:[self.callbacks objectForKey:ADDSERVICE]];
+  }
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didAddService:(CBService *)service error:(NSError *)error{
@@ -726,7 +751,7 @@
   service = characteristicNotify.service;
   callbackInfo = [self getUniqueIDWithService:service andCharacteristicIndex:characteristicNotify];
   result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
-  
+
   // stop advertising
   NSLog(@"Stopped advertising.");
   [peripheral stopAdvertising];
@@ -746,7 +771,7 @@
   service = characteristicNotify.service;
   result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
   callbackInfo = [self getUniqueIDWithService:service andCharacteristicIndex:characteristicNotify];
-  
+
   NSLog(@"Started advertising.");
   [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
     CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];

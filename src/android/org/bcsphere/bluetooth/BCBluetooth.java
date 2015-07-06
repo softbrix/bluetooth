@@ -75,9 +75,9 @@ public class BCBluetooth extends CordovaPlugin {
 		try {
 			if ((versionOfAPI = sp.getString("API", "no_google"))
 					.equals("google")) {
-				bluetoothAPI = (IBluetooth) Class.forName(
-						"org.bcsphere.bluetooth.BluetoothG43plus")
-						.newInstance();
+            bluetoothAPI = (IBluetooth) Class.forName(
+              "org.bcsphere.bluetooth.BluetoothG43plus")
+            .newInstance();
 			} else if ((versionOfAPI = sp.getString("API", "no_samsung"))
 					.equals("samsung")) {
 				bluetoothAPI = (IBluetooth) Class.forName(
