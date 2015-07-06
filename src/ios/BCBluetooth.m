@@ -182,7 +182,7 @@
   peripheralAndUUID = [[NSMutableDictionary alloc] init];
   isEndOfAddService = FALSE;
   isFindingPeripheral = FALSE;
-  isAdvertisingStopped = FALSE;
+  self.isAdvertisingStopped = FALSE;
 
   myPeripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil];
   myCentralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
@@ -696,11 +696,11 @@
 
   case CBPeripheralManagerStatePoweredOff:
     NSLog(@"****Bluetooth is powered OFF.");
-    if (isAdvertisingStopped) {
+    if (self.isAdvertisingStopped) {
       NSLog(@"Started advertising after Bluetooth coming back on.");
       [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
         CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
-      isAdvertisingStopped = FALSE;
+      self.isAdvertisingStopped = FALSE;
     }
     break;
 
@@ -737,7 +737,7 @@
       NSLog(@"Started advertising after adding the services.");
       [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
         CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
-      isAdvertisingStopped = FALSE;
+      self.isAdvertisingStopped = FALSE;
       CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
     }
@@ -766,7 +766,7 @@
   // stop advertising
   NSLog(@"Stopped advertising.");
   [peripheral stopAdvertising];
-  isAdvertisingStopped = TRUE;
+  self.isAdvertisingStopped = TRUE;
 
   [result setKeepCallbackAsBool:TRUE];
   [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONSUBSCRIBE]];
@@ -787,7 +787,7 @@
   NSLog(@"Started advertising.");
   [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
     CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
-  isAdvertisingStopped = FALSE;
+  self.isAdvertisingStopped = FALSE;
 
   [result setKeepCallbackAsBool:TRUE];
   [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];
