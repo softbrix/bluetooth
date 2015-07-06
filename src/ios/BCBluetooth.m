@@ -175,46 +175,50 @@
 #pragma mark -
 
 
-- (void)pluginInitialize{
-    [super pluginInitialize];
+- (void)pluginInitialize
+{
+  [super pluginInitialize];
 
-    peripheralAndUUID = [[NSMutableDictionary alloc] init];
-    isEndOfAddService = FALSE;
-    isFindingPeripheral = FALSE;
+  peripheralAndUUID = [[NSMutableDictionary alloc] init];
+  isEndOfAddService = FALSE;
+  isFindingPeripheral = FALSE;
+  isAdvertisingStopped = FALSE;
 
-    myPeripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil];
-    myCentralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+  myPeripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil];
+  myCentralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
 
-    callbacks = [[NSMutableDictionary alloc] init];
-    _peripherals = [[NSMutableArray alloc] init];
-    advDataDic = [[NSMutableDictionary alloc] init];
-    RSSIDic = [[NSMutableDictionary alloc] init];
+  callbacks = [[NSMutableDictionary alloc] init];
+  _peripherals = [[NSMutableArray alloc] init];
+  advDataDic = [[NSMutableDictionary alloc] init];
+  RSSIDic = [[NSMutableDictionary alloc] init];
 
-    serviceAndKeyDic = [[NSMutableDictionary alloc] init];
-    writeReqAndCharacteristicDic = [[NSMutableDictionary alloc] init];
-    readReqAndCharacteristicDic = [[NSMutableDictionary alloc] init];
-    valueAndCharacteristicDic = [[NSMutableDictionary alloc] init];
-    bluetoothState = BLUETOOTHSTARTSTATE;
+  serviceAndKeyDic = [[NSMutableDictionary alloc] init];
+  writeReqAndCharacteristicDic = [[NSMutableDictionary alloc] init];
+  readReqAndCharacteristicDic = [[NSMutableDictionary alloc] init];
+  valueAndCharacteristicDic = [[NSMutableDictionary alloc] init];
+  bluetoothState = BLUETOOTHSTARTSTATE;
 }
 
-- (void)getEnvironment:(CDVInvokedUrlCommand *)command{
-    BCLOG_FUNC(GAP_MODUAL)
-    NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
-    [info setValue:[NSString stringWithFormat:@"%f",[[[UIDevice currentDevice] systemVersion] floatValue]] forKey:VERSION];
-    [info setValue:IOS forKey:API];
-    [info setValue:NOTAVAILABLE forKey:APP_ID];
-    [info setValue:NOTAVAILABLE forKey:DEVICE_ADDRESS];
-    [info setValue:BLE_DEVICETYPE forKeyPath:DEVICE_TYPE];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+- (void)getEnvironment:(CDVInvokedUrlCommand *)command
+{
+  BCLOG_FUNC(GAP_MODUAL)
+  NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
+  [info setValue:[NSString stringWithFormat:@"%f",[[[UIDevice currentDevice] systemVersion] floatValue]] forKey:VERSION];
+  [info setValue:IOS forKey:API];
+  [info setValue:NOTAVAILABLE forKey:APP_ID];
+  [info setValue:NOTAVAILABLE forKey:DEVICE_ADDRESS];
+  [info setValue:BLE_DEVICETYPE forKeyPath:DEVICE_TYPE];
+  CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
+  [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
-- (void)getBluetoothState:(CDVInvokedUrlCommand*)command{
-    BCLOG_FUNC(GAP_MODUAL)
-    NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
-    [info setValue:bluetoothState forKey:BLUETOOTH_STATE];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+- (void)getBluetoothState:(CDVInvokedUrlCommand*)command
+{
+  BCLOG_FUNC(GAP_MODUAL)
+  NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
+  [info setValue:bluetoothState forKey:BLUETOOTH_STATE];
+  CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:info];
+  [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
 - (void)addEventListener:(CDVInvokedUrlCommand *)command{
@@ -684,7 +688,7 @@
 #pragma mark -
 #pragma mark - CBperipheralManagerDelegate
 - (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral
-{  
+{
   switch (peripheral.state) {
   case CBPeripheralManagerStatePoweredOn:
     NSLog(@"****Bluetooth is powered ON.");
@@ -692,20 +696,26 @@
 
   case CBPeripheralManagerStatePoweredOff:
     NSLog(@"****Bluetooth is powered OFF.");
+    if (isAdvertisingStopped) {
+      NSLog(@"Started advertising after Bluetooth coming back on.");
+      [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
+        CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
+      isAdvertisingStopped = FALSE;
+    }
     break;
-    
+
   case CBPeripheralManagerStateUnauthorized:
     NSLog(@"****Bluetooth is NOT AUTHORIZED.");
     break;
-    
+
   case CBPeripheralManagerStateUnsupported:
     NSLog(@"****Bluetooth is NOT SUPPORTED.");
     break;
-    
+
   case CBPeripheralManagerStateResetting:
     NSLog(@"****Bluetooth is RESETTING.");
     break;
-    
+
   case CBPeripheralManagerStateUnknown:
     NSLog(@"****Bluetooth STATE IS UNKNOWN.");
     break;
@@ -714,7 +724,7 @@
     NSLog(@"****Bluetooth STATE HAS INVALID VALUE.");
     break;
   }
-  
+
   if ([self.callbacks objectForKey:ADDSERVICE]) {
     [self error:[self.callbacks objectForKey:ADDSERVICE]];
   }
@@ -727,6 +737,7 @@
       NSLog(@"Started advertising after adding the services.");
       [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
         CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
+      isAdvertisingStopped = FALSE;
       CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks objectForKey:ADDSERVICE]];
     }
@@ -755,6 +766,7 @@
   // stop advertising
   NSLog(@"Stopped advertising.");
   [peripheral stopAdvertising];
+  isAdvertisingStopped = TRUE;
 
   [result setKeepCallbackAsBool:TRUE];
   [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONSUBSCRIBE]];
@@ -775,6 +787,7 @@
   NSLog(@"Started advertising.");
   [self.myPeripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"Truma App",
     CBAdvertisementDataServiceUUIDsKey:@[[CBUUID UUIDWithString:@"61808880-b7b3-11e4-b3a4-0002a5d5c51b"]]}];
+  isAdvertisingStopped = FALSE;
 
   [result setKeepCallbackAsBool:TRUE];
   [self.commandDelegate sendPluginResult:result callbackId:[self.callbacks valueForKey:EVENT_ONUNSUBSCRIBE]];

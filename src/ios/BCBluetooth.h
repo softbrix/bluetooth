@@ -45,6 +45,8 @@
 @property (strong, nonatomic) NSString *notifyCallbackId;
 @property (strong, nonatomic) CBMutableCharacteristic *notifyCharacteristic;
 
+@property (assign, nonatomic) BOOL isAdvertisingStopped;
+
 - (void)getEnvironment:(CDVInvokedUrlCommand *)command;
 - (void)addEventListener:(CDVInvokedUrlCommand *)command;
 - (void)getBluetoothState:(CDVInvokedUrlCommand*)command;
