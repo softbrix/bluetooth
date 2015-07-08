@@ -214,30 +214,31 @@ public class BCBluetooth extends CordovaPlugin {
 					callbackContext.error("your bluetooth is not open!");
 				}
 			}
-			if(action.equals("rfcommConnect")){
+			if (action.equals("rfcommConnect")) {
 				String deviceAddress = Tools.getData(json, Tools.DEVICE_ADDRESS);
 				String securestr = Tools.getData(json, Tools.SECURE);
 				String uuidstr = Tools.getData(json, Tools.UUID);
 				boolean secure = false;
+        
 				if(securestr != null && securestr.equals("true")){
 					secure = true;
 				}
 				Log.i(TAG,"connect to "+deviceAddress);
-			    BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
-			    BluetoothSerialService classicalService = classicalServices.get(deviceAddress);
-			    
-			    if(device != null && classicalService == null){
-			    	classicalService = new BluetoothSerialService();
-			    	classicalService.disconnectCallback = disconnectContext;
-			    	classicalServices.put(deviceAddress, classicalService);
-			    }
-			    
-			    if (device != null) {
-			    	classicalService.connectCallback = callbackContext;
-			    	classicalService.connect(device,uuidstr,secure);
-			    } else {
-			        callbackContext.error("Could not connect to " + deviceAddress);
-			    }
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
+        BluetoothSerialService classicalService = classicalServices.get(deviceAddress);
+        
+        if(device != null && classicalService == null){
+          classicalService = new BluetoothSerialService();
+          classicalService.disconnectCallback = disconnectContext;
+          classicalServices.put(deviceAddress, classicalService);
+        }
+        
+        if (device != null) {
+          classicalService.connectCallback = callbackContext;
+          classicalService.connect(device,uuidstr,secure);
+        } else {
+          callbackContext.error("Could not connect to " + deviceAddress);
+        }
 			}
 			if (action.equals("rfcommDisconnect")) {
 				String deviceAddress = Tools.getData(json, Tools.DEVICE_ADDRESS);

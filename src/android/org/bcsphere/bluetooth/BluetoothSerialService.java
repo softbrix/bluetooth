@@ -66,7 +66,7 @@ public class BluetoothSerialService {
   
   private String deviceAddress;
   
-  ByteBuffer buffer = ByteBuffer.allocate(2048);
+  ByteBuffer buffer = ByteBuffer.allocate(16 * 1024);
   int bufferSize = 0;
   
   /**
@@ -160,16 +160,22 @@ public class BluetoothSerialService {
     if (D) Log.d(TAG, "startListen");
     UUID uuid = UUID.fromString(uuidstr);
     // Cancel any thread attempting to make a connection
-    if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+    if (mConnectThread != null) {
+      mConnectThread.cancel();
+      mConnectThread = null;
+    }
 
     // Cancel any thread currently running a connection
-    if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+    if (mConnectedThread != null) {
+      mConnectedThread.cancel();
+      mConnectedThread = null;
+    }
 
     setState(STATE_NONE);
 
     //Listen isn't working with Arduino. Ignore since assuming the phone will initiate the connection.
     setState(STATE_LISTEN);
-    
+
     // Start the thread to listen on a BluetoothServerSocket
     if (mAcceptThread == null) {
       mAcceptThread = new AcceptThread(name,uuid,secure,bcbluetooth,this);
