@@ -488,6 +488,9 @@ public class BluetoothSerialService {
    * succeeds or fails.
    */
   private class ConnectThread extends Thread {
+    private static final String mSecureMethodName = "createRfcommSocket";
+    private static final String mInsecureMethodName = "createInsecureRfcommSocket";
+    
     private String mSocketType;
     private BluetoothSocket mmSocket;
     private Class<?> mmDroid42SocketClass;
@@ -506,8 +509,7 @@ public class BluetoothSerialService {
     }
     
     private void createRfcommSocket(BluetoothDevice device, UUID uuid, boolean secure) {
-      if ((android.os.Build.VERSION.RELEASE.startsWith("4.2")) ||
-        (android.os.Build.VERSION.RELEASE.startsWith("4.4.3"))) {
+      if (android.os.Build.VERSION.RELEASE.startsWith("4.2")) {
         createRfcommSocketDroid42(device, uuid, secure);
       } else {
         createRfcommSocketRegular(device, uuid, secure);
@@ -534,12 +536,19 @@ public class BluetoothSerialService {
     }
 
     private void createRfcommSocketDroid42(BluetoothDevice device, UUID uuid, boolean secure) {
+      String methodName;
       Object[] parameters;
       Class<?>[] parameterTypes;
       Method createRfcommSocketMethod;
 
       parameters = new Object[] {Integer.valueOf(1)};
       parameterTypes = new Class<?>[] { Integer.TYPE };
+      
+      if (secure) {
+        methodName = mSecureMethodName;
+      } else {
+        methodName = mInsecureMethodName;
+      }
 
       createRfcommSocketRegular(device, uuid, secure);
       
@@ -547,7 +556,7 @@ public class BluetoothSerialService {
       
       try {
         Log.i(TAG, "Creating bluetooth socket the special (i.e. Android 4.2) way");
-        createRfcommSocketMethod = mmDroid42SocketClass.getMethod("createRfcommSocket", parameterTypes);
+        createRfcommSocketMethod = mmDroid42SocketClass.getMethod(methodName, parameterTypes);
         mmSocket = (BluetoothSocket) createRfcommSocketMethod.invoke(mmSocket.getRemoteDevice(), parameters);
       } catch (Exception exc) {
         Log.e(TAG, "Creating bluetooth socket the special (i.e. Android 4.2) way - failed", exc);
