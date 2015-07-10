@@ -59,18 +59,19 @@ public class BluetoothSerialService {
   public static final int CONNECT_TIMED_OUT = 7;
 
   private int mState;
-  private int bufferSize = 0;
   private String deviceAddress;
   private final Handler mHandler;
   private AcceptThread mAcceptThread;
   private ConnectThread mConnectThread;
   private final BluetoothAdapter mAdapter;
   private ConnectedThread mConnectedThread;
-  private ByteBuffer buffer = ByteBuffer.allocate(16 * 1024);
 
   public CallbackContext connectCallback;
   public CallbackContext disconnectCallback;
   public CallbackContext dataAvailableCallback;
+  
+  bufferSize = 0;
+  ByteBuffer buffer = ByteBuffer.allocate(16 * 1024);
 
   /**
    * Constructor. Prepares a new BluetoothSerial session.
@@ -564,7 +565,7 @@ public class BluetoothSerialService {
             Log.d(TAG, "No need to call mmSocket.close() - there is no socket");
           }
         } catch (IOException ioExc) {
-          Log.d(TAG, "mmSocket.close() - failure", ioExc);
+          Log.e(TAG, "mmSocket.close() - failure", ioExc);
         }
 
         connectionFailed();
