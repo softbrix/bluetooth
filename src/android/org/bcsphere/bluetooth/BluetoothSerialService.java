@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import java.lang.Object;
-import java.lang.Method;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -534,7 +533,7 @@ public class BluetoothSerialService {
     }
 
     private void createRfcommSocketDroid42(BluetoothDevice device, UUID uuid, boolean secure) {
-      Obejct[] parameters;
+      Object[] parameters;
       Class<?>[] parameterTypes;
       Method createRfcommSocketMethod;
 
