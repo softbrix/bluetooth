@@ -511,6 +511,8 @@ public class BluetoothSerialService {
     private void createRfcommSocket(BluetoothDevice device, UUID uuid, boolean secure) {
       if (android.os.Build.VERSION.RELEASE.startsWith("4.2")) {
         createRfcommSocketDroid42(device, uuid, secure);
+      } else if (android.os.Build.VERSION.RELEASE.startsWith("4.4.3")) {
+        createRfcommSocketDroid42(device, uuid, secure);
       } else {
         createRfcommSocketRegular(device, uuid, secure);
       }
