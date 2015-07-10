@@ -6,6 +6,9 @@ import java.io.OutputStream;
 
 import java.nio.ByteBuffer;
 
+import java.lang.Object;
+import java.lang.Method;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -486,12 +489,20 @@ public class BluetoothSerialService {
    * succeeds or fails.
    */
   private class ConnectThread extends Thread {
+    private String mSocketType;
     private BluetoothSocket mmSocket;
     private Class<?> mmDroid42SocketClass;
     private final BluetoothDevice mmDevice;
 
     public ConnectThread(BluetoothDevice device, UUID uuid, boolean secure) {
       mmDevice = device;
+      
+      if (secure) {
+        mSocketType = "secure";
+      } else {
+        mSocketType = "insecure";
+      }
+      
       createRfcommSocket(device, uuid, secure);
     }
     
