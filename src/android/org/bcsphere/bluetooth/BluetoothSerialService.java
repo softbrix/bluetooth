@@ -70,7 +70,7 @@ public class BluetoothSerialService {
   public CallbackContext disconnectCallback;
   public CallbackContext dataAvailableCallback;
   
-  bufferSize = 0;
+  int bufferSize = 0;
   ByteBuffer buffer = ByteBuffer.allocate(16 * 1024);
 
   /**
