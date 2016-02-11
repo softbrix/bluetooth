@@ -15,8 +15,6 @@
 */
 
 #import "BCBluetooth.h"
-#import <Cordova/NSData+Base64.h>
-#import <Cordova/CDVJSON.h>
 
 #define BLUETOOTH_STATE                                         @"state"
 #define BLUETOOTH_OPEN                                          @"bluetoothopen"
@@ -429,7 +427,7 @@
     NSString *characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
     NSString *descriptorIndex = [self getCommandArgument:command.arguments fromKey:DESCRIPTOR_INDEX];
     NSString *valueWrite = [self getCommandArgument:command.arguments fromKey:WRITE_VALUE];
-    NSData *data = [NSData dataFromBase64String:valueWrite];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:valueWrite options:0];
     if (peripheral && data && serviceIndex && characteristicIndex && (serviceIndex.intValue < peripheral.services.count)) {
         CBService *service=[peripheral.services objectAtIndex:[serviceIndex intValue]];
         if (service.characteristics.count > [characteristicIndex intValue]) {
@@ -534,8 +532,8 @@
     BCLOG_FUNC(1)
     if ([self existCommandArguments:command.arguments]) {
         [self.callbacks setValue:command.callbackId forKey:ADDSERVICE];
-        NSMutableDictionary *servicePacket=[[NSString stringWithFormat:@"%@",[command.arguments objectAtIndex:0]] JSONObject];
-        NSMutableArray *services = [[NSMutableArray alloc] initWithArray:[servicePacket valueForKey:SERVICES]];
+ 
+        NSMutableArray *services = [[NSMutableArray alloc] initWithArray:[[command.arguments objectAtIndex:0] valueForKey:SERVICES]];
         if (services.count > 0) {
             CBMutableDescriptor *newDescriptor;
             for (int i=0; i < services.count; i++) {
@@ -656,7 +654,7 @@
     CBMutableCharacteristic *characteristic;
 
     uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
-    data = [NSData dataFromBase64String:[self getCommandArgument:command.arguments fromKey:DATA]];
+      data = [[NSData alloc] initWithBase64EncodedString:[self getCommandArgument:command.arguments fromKey:DATA] options:0];
     characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
     characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:characteristicIndex];
 
@@ -1157,7 +1155,7 @@
 }
 
 - (NSString*)encodeBase64:(NSData*)data{
-    return [[[NSData alloc] initWithData:data] base64EncodedString];
+    return [data base64EncodedStringWithOptions:0];
 }
 
 - (NSString*)getTime{
