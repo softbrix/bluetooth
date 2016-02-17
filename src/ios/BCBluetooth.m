@@ -15,8 +15,6 @@
 */
 
 #import "BCBluetooth.h"
-#import <Cordova/NSData+Base64.h>
-#import <Cordova/CDVJSON.h>
 
 #define BLUETOOTH_STATE                                         @"state"
 #define BLUETOOTH_OPEN                                          @"bluetoothopen"
@@ -272,8 +270,9 @@
 
 - (void)getConnectedDevices:(CDVInvokedUrlCommand*)command{
     BCLOG_FUNC(GAP_MODUAL)
+    NSArray *svcs = [NSArray arrayWithObjects:[CBUUID UUIDWithString:@"0000"], nil];
     [self.callbacks setValue:command.callbackId forKey:GETCONNECTEDDEVICES];
-    [self.myCentralManager retrieveConnectedPeripherals];
+    [self.myCentralManager retrieveConnectedPeripheralsWithServices:svcs];
 }
 
 - (void)connect:(CDVInvokedUrlCommand*)command{
@@ -290,7 +289,7 @@
                 [self.myCentralManager connectPeripheral:peripheral options:nil];
             }
         }else{
-            if (peripheral.isConnected) {
+            if ([peripheral state] == CBPeripheralStateConnected) {
                 [self connectRequest:deviceAddress callbackId:command.callbackId isKeepCallback:FALSE];
             }else{
                 [self.callbacks setValue:command.callbackId forKey:[NSString stringWithFormat:@"connect%@",deviceAddress]];
@@ -428,7 +427,7 @@
     NSString *characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
     NSString *descriptorIndex = [self getCommandArgument:command.arguments fromKey:DESCRIPTOR_INDEX];
     NSString *valueWrite = [self getCommandArgument:command.arguments fromKey:WRITE_VALUE];
-    NSData *data = [NSData dataFromBase64String:valueWrite];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:valueWrite options:0];
     if (peripheral && data && serviceIndex && characteristicIndex && (serviceIndex.intValue < peripheral.services.count)) {
         CBService *service=[peripheral.services objectAtIndex:[serviceIndex intValue]];
         if (service.characteristics.count > [characteristicIndex intValue]) {
@@ -533,8 +532,8 @@
     BCLOG_FUNC(1)
     if ([self existCommandArguments:command.arguments]) {
         [self.callbacks setValue:command.callbackId forKey:ADDSERVICE];
-        NSMutableDictionary *servicePacket=[[NSString stringWithFormat:@"%@",[command.arguments objectAtIndex:0]] JSONObject];
-        NSMutableArray *services = [[NSMutableArray alloc] initWithArray:[servicePacket valueForKey:SERVICES]];
+ 
+        NSMutableArray *services = [[NSMutableArray alloc] initWithArray:[[command.arguments objectAtIndex:0] valueForKey:SERVICES]];
         if (services.count > 0) {
             CBMutableDescriptor *newDescriptor;
             for (int i=0; i < services.count; i++) {
@@ -655,7 +654,7 @@
     CBMutableCharacteristic *characteristic;
 
     uniqueID = [self getCommandArgument:command.arguments fromKey:UINQUE_ID];
-    data = [NSData dataFromBase64String:[self getCommandArgument:command.arguments fromKey:DATA]];
+      data = [[NSData alloc] initWithBase64EncodedString:[self getCommandArgument:command.arguments fromKey:DATA] options:0];
     characteristicIndex = [self getCommandArgument:command.arguments fromKey:CHARACTERISTIC_INDEX];
     characteristic = [self getNotifyCharacteristic:uniqueID characteristicIndex:characteristicIndex];
 
@@ -886,6 +885,9 @@
 
 - (void)waitNewPacketWithDeviceAddress:(NSString *)deviceAddress{
     NSMutableDictionary *callbackInfo = [peripheralAndUUID valueForKey:deviceAddress];
+    if ([[callbackInfo valueForKey:ADVERTISEMENT_DATA] valueForKey:@"serviceData"]) {
+        [[callbackInfo valueForKey:ADVERTISEMENT_DATA] removeObjectForKey:@"serviceData"];
+    }
     if ([[callbackInfo valueForKey:ADVERTISEMENT_DATA] valueForKey:LOCAL_NAME]) {
         NSLog(@"~~~~~~~~~~~~~~%@",callbackInfo);
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:callbackInfo];
@@ -954,9 +956,11 @@
     BCLOG_FUNC(GAP_MODUAL)
     NSString *deviceAddress = [self getPeripheralUUID:aPeripheral];
     if (!error) {
-        [self connectRequest:deviceAddress callbackId:[self.callbacks valueForKey:
+        if ([self.callbacks valueForKey:[NSString stringWithFormat:@"disConnect%@",deviceAddress]]) {
+            [self connectRequest:deviceAddress callbackId:[self.callbacks valueForKey:
                             [NSString stringWithFormat:@"disConnect%@",deviceAddress]] isKeepCallback:FALSE];
-        [self.callbacks removeObjectForKey:[NSString stringWithFormat:@"disConnect%@",deviceAddress]];
+            [self.callbacks removeObjectForKey:[NSString stringWithFormat:@"disConnect%@",deviceAddress]];
+        }
     }else{
         if ([self.callbacks valueForKey:[NSString stringWithFormat:@"disConnect%@",deviceAddress]]) {
             [self error:[self.callbacks valueForKey:[NSString stringWithFormat:@"disConnect%@",deviceAddress]]];
@@ -1028,7 +1032,6 @@
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-    BCLOG_FUNC(GATT_MODUAL)
     if (!error) {
         NSString *deviceAddress = [self getPeripheralUUID:peripheral];
         NSString *date = [NSString stringWithFormat:@"%@",[self getTime]];
@@ -1152,7 +1155,7 @@
 }
 
 - (NSString*)encodeBase64:(NSData*)data{
-    return [[[NSData alloc] initWithData:data] base64EncodedString];
+    return [data base64EncodedStringWithOptions:0];
 }
 
 - (NSString*)getTime{
@@ -1176,7 +1179,7 @@
         [peripheralInfo setValue:[[self getAdvertisementData:advData] valueForKey:LOCAL_NAME] forKey:DEVICE_NAME];
     }
     [peripheralInfo setValue:[self getPeripheralUUID:peripheralObj] forKey:DEVICE_ADDRESS];
-    [peripheralInfo setValue: ([peripheralObj isConnected] ? IS_TRUE:IS_FALSE ) forKey:IS_CONNECTED];
+    [peripheralInfo setValue: (([peripheralObj state] == CBPeripheralStateConnected) ? IS_TRUE:IS_FALSE ) forKey:IS_CONNECTED];
     [peripheralInfo setValue:[self getAdvertisementData:advData] forKey:ADVERTISEMENT_DATA];
     [peripheralInfo setValue:[NSString stringWithFormat:@"%@",RSSI] forKey:PERIPHERAL_RSSI];
     [peripheralInfo setValue:@"BLE" forKey:@"type"];
@@ -1192,7 +1195,7 @@
         if (peripheral != nil && peripheralUUID != nil){
             [peripheralInfo setValue:([peripheral name]!=nil)? [peripheral name]:@"null" forKey:DEVICE_NAME];
             [peripheralInfo setValue:peripheralUUID forKey:DEVICE_ADDRESS];
-            [peripheralInfo setValue:([peripheral isConnected]) ? IS_TRUE:IS_FALSE forKey:IS_CONNECTED];
+            [peripheralInfo setValue:([peripheral state] == CBPeripheralStateConnected) ? IS_TRUE:IS_FALSE forKey:IS_CONNECTED];
             [peripheralInfo setValue:[self.advDataDic valueForKey:peripheralUUID] forKey:ADVERTISEMENT_DATA];
             [peripheralInfo setValue:[self.RSSIDic valueForKey:peripheralUUID] forKey:PERIPHERAL_RSSI];
             [callbackInfo addObject:peripheralInfo];
@@ -1354,7 +1357,7 @@
 }
 
 - (NSString *)getPeripheralUUID:(CBPeripheral *)peripheral{
-    return CFBridgingRelease(CFUUIDCreateString(nil,peripheral.UUID));
+    return peripheral.identifier.UUIDString;
 }
 
 - (int)getServiceIndex:(CBPeripheral *)peripheral service:(CBService *)service{
